@@ -1,0 +1,92 @@
+# Скомпилированные объектные файлы
+*.o
+*.obj
+*.lo
+*.slo
+*.ko
+*.elf
+*.d
+
+# Прекомпилированные заголовки
+*.gch
+*.pch
+
+# Динамические библиотеки
+*.so
+*.so.*
+*.dylib
+*.dll
+
+# Статические библиотеки
+*.a
+*.lib
+*.la
+*.lai
+
+# Исполняемые файлы
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Отладочные файлы
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Артефакты CMake
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+CMakeUserPresets.json
+
+# Внешние проекты CMake
+*-prefix/
+
+# Папки сборки
+build/
+build*/
+cmake-build-*/
+out/
+bin/
+obj/
+dist/
+
+# Файлы IDE
+.vscode/
+.idea/
+*.user
+*.suo
+*.sln.docstates
+.vs/
+*.iws
+*.iml
+.idea_modules/
+
+# ОС
+.DS_Store
+Thumbs.db
+
+# Покрытие тестов
+*.gcda
+*.gcno
+*.gcov
+coverage/
+.coverage
+htmlcov/
+TestResults/
+
+# Временные файлы
+*.log
+*.tmp
