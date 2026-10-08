@@ -66,7 +66,8 @@ add_test(NAME turing_tests COMMAND turing_tests)
 # ---------- Coverage ----------
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(set_lib PRIVATE --coverage -O0 -g)
+    target_link_options(set_lib PUBLIC --coverage)      # пробрасывается в set_cli и set_tests
+
     target_compile_options(turing_lib PRIVATE --coverage -O0 -g)
-    target_link_options(set_tests PRIVATE --coverage)
-    target_link_options(turing_tests PRIVATE --coverage)
+    target_link_options(turing_lib PUBLIC --coverage)   # пробрасывается в turing_cli и turing_tests
 endif()

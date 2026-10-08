@@ -9,7 +9,7 @@ bool isAtomChar(char c) {
     return c != '{' && c != '}' && c != ',' && !std::isspace(static_cast<unsigned char>(c));
 }
 
-}  // namespace
+} 
 
 Set SetParser::parse(const std::string& text) {
     SetParser parser;

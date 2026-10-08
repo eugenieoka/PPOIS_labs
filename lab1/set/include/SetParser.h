@@ -7,7 +7,7 @@
 
 class SetParser {
 public:
-    static Set parse(const std::string& text);   // бросает std::invalid_argument
+    static Set parse(const std::string& text);  
 
 private:
     Set parseSet();
