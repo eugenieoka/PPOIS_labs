@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-class Set;  // forward declaration
+class Set; 
 
 class Element {
 public:
