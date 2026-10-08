@@ -67,6 +67,10 @@ Set Set::difference(const Set& other) const {
     return result;
 }
 
+Set Set::symmetricDifference(const Set& other) const {
+    return difference(other).unite(other.difference(*this));
+}
+
 bool Set::operator==(const Set& other) const {
     if (size() != other.size()) {
         return false;

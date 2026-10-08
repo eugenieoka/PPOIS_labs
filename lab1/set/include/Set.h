@@ -23,6 +23,7 @@ public:
     Set unite(const Set& other) const;
     Set intersect(const Set& other) const;
     Set difference(const Set& other) const;
+    Set symmetricDifference(const Set& other) const;   
 
     bool operator==(const Set& other) const;
     bool operator!=(const Set& other) const;
