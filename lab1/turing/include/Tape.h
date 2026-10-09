@@ -21,3 +21,4 @@ private:
     char blank_;
     std::map<int, char> cells_;
 };
+
