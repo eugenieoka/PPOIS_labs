@@ -41,3 +41,22 @@ private:
     char write_;
     Direction direction_;
 };
+
+class ShiftRule : public Rule {
+public:
+    explicit ShiftRule(std::string fromState);
+
+    bool matches(const std::string& state, char read) const override;
+    RuleResult apply(char read) const override;
+};
+
+class HaltRule : public Rule {
+public:
+    HaltRule(std::string fromState, char read);
+
+    bool matches(const std::string& state, char read) const override;
+    RuleResult apply(char read) const override;
+
+private:
+    char read_;
+};
