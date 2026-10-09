@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'lab*']
+  pull_request:
+    branches: [main]
+  release:
+    types: [created]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ cppcheck gcovr zip
+
+      - name: Configure
+        run: cmake -S lab1 -B build -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        run: cmake --build build -j
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Coverage gate (lines >= 90%)
+        run: |
+          ./build/set_tests > /dev/null
+          ./build/turing_tests > /dev/null
+          gcovr --root . --filter 'lab1/(set|turing)/src/.*' \
+                --print-summary --fail-under-line 90 build
+
+      - name: Static analysis
+        run: cppcheck --enable=warning,performance --error-exitcode=1 lab1/set lab1/turing
+
+      - name: Package binaries
+        run: |
+          mkdir -p package
+          cp build/set_cli build/turing_cli package/
+          zip -r lab1-binaries.zip package
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab1-binaries
+          path: lab1-binaries.zip
+
+  release:
+    if: github.event_name == 'release'
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lab1-binaries
+
+      - name: Attach binaries to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: lab1-binaries.zip

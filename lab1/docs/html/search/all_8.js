@@ -1,0 +1,5 @@
+var searchData=
+[
+  ['left_0',['Left',['../Rule_8h.html#a224b9163917ac32fc95a60d8c1eec3aaa945d5e233cf7d6240f6b783b36a374ff',1,'Rule.h']]],
+  ['loadtape_1',['loadTape',['../classTuringMachine.html#af29ea827bd0b9a923ff46e0960ae3c56',1,'TuringMachine']]]
+];
