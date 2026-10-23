@@ -4,7 +4,7 @@
 
 class Alphabet {
 public:
-    Alphabet(std::string symbols, char blank);   // blank обязан входить в symbols
+    Alphabet(std::string symbols, char blank);   
 
     bool contains(char symbol) const noexcept;
     char blank() const noexcept;

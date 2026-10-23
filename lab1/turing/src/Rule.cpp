@@ -9,8 +9,7 @@ const std::string& Rule::fromState() const noexcept {
     return fromState_;
 }
 
-MoveRule::MoveRule(std::string fromState, char read, std::string toState, char write,
-                   Direction direction)
+MoveRule::MoveRule(std::string fromState, char read, std::string toState, char write, Direction direction)
     : Rule(std::move(fromState)),
       read_(read),
       toState_(std::move(toState)),

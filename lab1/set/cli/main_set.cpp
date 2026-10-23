@@ -26,7 +26,7 @@ void showOperations(const Set& a, const Set& b) {
               << "A == B         : " << (a == b ? "да" : "нет") << "\n";
 }
 
-}  // namespace
+}  
 
 int main() {
     Set a;

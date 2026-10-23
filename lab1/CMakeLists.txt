@@ -63,11 +63,10 @@ target_link_libraries(turing_tests PRIVATE turing_lib GTest::gtest_main)
 add_test(NAME set_tests COMMAND set_tests)
 add_test(NAME turing_tests COMMAND turing_tests)
 
-# ---------- Coverage ----------
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(set_lib PRIVATE --coverage -O0 -g)
-    target_link_options(set_lib PUBLIC --coverage)      # пробрасывается в set_cli и set_tests
+    target_link_options(set_lib PUBLIC --coverage)
 
     target_compile_options(turing_lib PRIVATE --coverage -O0 -g)
-    target_link_options(turing_lib PUBLIC --coverage)   # пробрасывается в turing_cli и turing_tests
+    target_link_options(turing_lib PUBLIC --coverage)  
 endif()
