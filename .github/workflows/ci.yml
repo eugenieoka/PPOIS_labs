@@ -1,0 +1,126 @@
+name: Lab2 CI
+
+on:
+  push:
+    branches:
+      - main
+      - "feature/lab2-*"
+    paths:
+      - "lab2/**"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    paths:
+      - "lab2/**"
+      - ".github/workflows/ci.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Build, test, coverage and lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ gcovr cppcheck
+
+      - name: Configure
+        run: cmake -S lab2 -B build/lab2 -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        run: cmake --build build/lab2 --parallel
+
+      - name: Run tests
+        run: ctest --test-dir build/lab2 --output-on-failure
+
+      - name: Check line coverage
+        run: |
+          gcovr -r . \
+            --filter 'lab2/src/' \
+            --exclude-unreachable-branches \
+            --fail-under-line 90 \
+            --print-summary \
+            --xml coverage.xml \
+            --html-details coverage.html \
+            build/lab2
+
+      - name: Static analysis
+        run: |
+          cppcheck \
+            --enable=warning,performance,portability \
+            --error-exitcode=1 \
+            --std=c++17 \
+            --suppress=missingIncludeSystem \
+            --suppress=useInitializationList \
+            -I lab2/include \
+            lab2/src lab2/cli
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage.xml
+            coverage.html
+            coverage.*.html
+
+  package:
+    name: Package runnable CLI
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++
+
+      - name: Configure release build
+        run: cmake -S lab2 -B build/lab2-release -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build CLI
+        run: cmake --build build/lab2-release --target transport_cli --parallel
+
+      - name: Create archive
+        run: |
+          mkdir -p dist
+          cp build/lab2-release/transport_cli dist/transport_cli
+          cp lab2/README.md dist/README.md
+          tar -czf transport_cli-linux-x86_64.tar.gz -C dist .
+
+      - name: Upload runnable archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: transport_cli-linux-x86_64
+          path: transport_cli-linux-x86_64.tar.gz
+
+  release:
+    name: Publish GitHub Release
+    needs: package
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download archive
+        uses: actions/download-artifact@v4
+        with:
+          name: transport_cli-linux-x86_64
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: lab2-build-${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          name: "Lab2 build #${{ github.run_number }}"
+          prerelease: ${{ github.ref_name != 'main' }}
+          files: transport_cli-linux-x86_64.tar.gz
+          generate_release_notes: true
