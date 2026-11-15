@@ -90,6 +90,8 @@ add_executable(transport_cli
 
 target_link_libraries(transport_cli PRIVATE transport_domain)
 
+add_subdirectory(tests)
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(transport_domain PRIVATE --coverage -O0 -g)
     target_link_options(transport_domain PUBLIC --coverage)
