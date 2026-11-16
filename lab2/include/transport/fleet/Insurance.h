@@ -21,7 +21,7 @@ public:
 
     [[nodiscard]] bool isActiveOn(const TransportDate& date) const noexcept;
     void renew(const TransportDate& newValidTo, const Money& newPremium);
-    [[nodiscard]] Money annualCost() const noexcept;
+    [[nodiscard]] const Money& annualCost() const noexcept;
 
 private:
     std::string policyNumber_;

@@ -22,7 +22,7 @@ Manager::Manager(int64_t employeeId, std::string fullName, Address address, std:
     }
 }
 
-Money Manager::remainingBudget() const noexcept {
+const Money& Manager::remainingBudget() const noexcept {
     return budget_;
 }
 

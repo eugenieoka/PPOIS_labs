@@ -39,7 +39,7 @@ void Insurance::renew(const TransportDate& newValidTo, const Money& newPremium) 
     premium_ = newPremium;
 }
 
-Money Insurance::annualCost() const noexcept {
+const Money& Insurance::annualCost() const noexcept {
     return premium_;
 }
 

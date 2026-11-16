@@ -15,7 +15,7 @@ public:
     [[nodiscard]] const std::string& department() const noexcept { return department_; }
     [[nodiscard]] const Money& budget() const noexcept { return budget_; }
 
-    [[nodiscard]] Money remainingBudget() const noexcept;
+    [[nodiscard]] const Money& remainingBudget() const noexcept;
     void approveExpense(const Money& expense);
     void increaseBudget(const Money& amount);
     [[nodiscard]] std::string roleName() const override;
