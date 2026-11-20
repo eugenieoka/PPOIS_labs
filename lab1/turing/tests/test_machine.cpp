@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <cstdio>
+#include <fstream>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -159,4 +161,95 @@ TEST_F(MachineTest, TapeStringEscapesNewline) {
     EXPECT_EQ(machine->tapeString(), "|ab↵|");
     machine->loadTape("");
     EXPECT_EQ(machine->tapeString(), "|↵|");
+}
+
+namespace {
+
+std::string writeTemporaryProgram(const std::string& path, const std::string& content) {
+    std::ofstream file(path);
+    file << content;
+    return path;
+}
+
+}  
+
+TEST(TuringMachineFileTest, LoadsProgramAndTape) {
+    const std::string path = writeTemporaryProgram(
+        "turing_program_load.txt",
+        "alphabet: 01\n"
+        "tape: 00110\n"
+        "q0 0 q0 1 R\n"
+        "q0 1 q0 0 R\n"
+        "q0 /n qa /n S\n");
+
+    std::unique_ptr<TuringMachine> machine = TuringMachine::loadFromFile(path);
+    std::remove(path.c_str());
+
+    ASSERT_TRUE(machine != nullptr);
+    EXPECT_EQ(machine->program().size(), 3u);
+    EXPECT_EQ(machine->tape().read(0), '0');
+
+    machine->run();
+
+    std::string result;
+    for (int i = 0; i < 5; ++i) {
+        result += machine->tape().read(i);
+    }
+    EXPECT_TRUE(machine->halted());
+    EXPECT_EQ(result, "11001");
+}
+
+TEST(TuringMachineFileTest, StopTokenIsNewline) {
+    const std::string path = writeTemporaryProgram(
+        "turing_program_halt.txt",
+        "alphabet: 01\n"
+        "tape: 0\n"
+        "q0 /n qa /n S\n");
+
+    std::unique_ptr<TuringMachine> machine = TuringMachine::loadFromFile(path);
+    std::remove(path.c_str());
+
+    const Rule* rule = machine->program().find("q0", '\n');
+    ASSERT_TRUE(rule != nullptr);
+    EXPECT_TRUE(rule->apply('\n').halt);
+}
+
+TEST(TuringMachineFileTest, SpaceTokenIsUnderscore) {
+    const std::string path = writeTemporaryProgram(
+        "turing_program_space.txt",
+        "alphabet: 01\n"
+        "tape: 0\n"
+        "q0 _ q1 _ L\n");
+
+    std::unique_ptr<TuringMachine> machine = TuringMachine::loadFromFile(path);
+    std::remove(path.c_str());
+
+    const Rule* rule = machine->program().find("q0", ' ');
+    ASSERT_TRUE(rule != nullptr);
+    EXPECT_EQ(rule->apply(' ').write, ' ');
+    EXPECT_EQ(rule->apply(' ').nextState, "q1");
+}
+
+TEST(TuringMachineFileTest, MissingFileThrows) {
+    EXPECT_THROW(TuringMachine::loadFromFile("no_such_program.txt"), std::runtime_error);
+}
+
+TEST(TuringMachineFileTest, BadAlphabetLineThrows) {
+    const std::string path = writeTemporaryProgram(
+        "turing_program_bad_alphabet.txt",
+        "alphabet 01\n"
+        "tape: 0\n");
+
+    EXPECT_THROW(TuringMachine::loadFromFile(path), std::runtime_error);
+    std::remove(path.c_str());
+}
+
+TEST(TuringMachineFileTest, BadTapeLineThrows) {
+    const std::string path = writeTemporaryProgram(
+        "turing_program_bad_tape.txt",
+        "alphabet: 01\n"
+        "wrong: 0\n");
+
+    EXPECT_THROW(TuringMachine::loadFromFile(path), std::runtime_error);
+    std::remove(path.c_str());
 }

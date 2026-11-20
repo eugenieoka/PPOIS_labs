@@ -2,6 +2,9 @@
 
 #include <stdexcept>
 #include <utility>
+#include <fstream>
+#include <sstream>
+
 
 TuringMachine::TuringMachine(Alphabet alphabet)
     : alphabet_(std::move(alphabet)), tape_(alphabet_.blank()), head_(tape_) {}
@@ -105,3 +108,68 @@ std::string TuringMachine::tapeString() const {
     return result;
 }
 
+namespace {
+
+char parseSymbolToken(const std::string& token) {
+    if (token == "_") {
+        return ' ';
+    }
+    if (token == "/n" || token == "\\n") {
+        return '\n';
+    }
+    return token.empty() ? '\0' : token.front();
+}
+
+}  
+
+std::unique_ptr<TuringMachine> TuringMachine::loadFromFile(const std::string& program) {
+    std::ifstream file(program);
+    if (!file.is_open()) {
+        throw std::runtime_error("Не удалось открыть файл: " + program);
+    }
+
+    const std::string alphabetPrefix = "alphabet: ";
+    const std::string tapePrefix = "tape: ";
+
+    std::string line;
+    std::string symbols;
+    std::string tapeData;
+
+    std::getline(file, line);
+    if (line.compare(0, alphabetPrefix.size(), alphabetPrefix) == 0) {
+        symbols = line.substr(alphabetPrefix.size());
+        symbols += " \n";
+    } else {
+        throw std::runtime_error("Ошибка формата: первая строка должна быть 'alphabet: ...'");
+    }
+
+    std::getline(file, line);
+    if (line.compare(0, tapePrefix.size(), tapePrefix) == 0) {
+        tapeData = line.substr(tapePrefix.size());
+    } else {
+        throw std::runtime_error("Ошибка формата: вторая строка должна быть 'tape: ...'");
+    }
+
+    auto machine = std::make_unique<TuringMachine>(Alphabet(symbols, ' '));
+    machine->loadTape(tapeData);
+
+    while (std::getline(file, line)) {
+        if (line.empty()) continue;
+
+        std::stringstream ss(line);
+        std::string from, readStr, to, writeStr, dirStr;
+        ss >> from >> readStr >> to >> writeStr >> dirStr;
+
+        char readC = parseSymbolToken(readStr);
+        char writeC = parseSymbolToken(writeStr);
+
+        if (dirStr == "S") {
+            machine->program().addHalt(from, readC);
+        } else {
+            Direction dir = (dirStr == "L") ? Direction::Left : Direction::Right;
+            machine->program().addTransition(from, readC, to, writeC, dir);
+        }
+    }
+
+    return machine;
+}

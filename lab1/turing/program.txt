@@ -1,0 +1,5 @@
+alphabet: 01
+tape: 00110
+q0 0 q0 1 R
+q0 1 q0 0 R
+q0 /n qa /n S

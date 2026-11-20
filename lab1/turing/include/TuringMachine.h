@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <string>
+#include <memory>
 
 #include "Alphabet.h"
 #include "Head.h"
@@ -10,6 +11,9 @@
 
 class TuringMachine {
 public:
+
+    static std::unique_ptr<TuringMachine> loadFromFile(const std::string& program);
+
     explicit TuringMachine(Alphabet alphabet);
 
     void loadTape(const std::string& input);
@@ -28,7 +32,6 @@ public:
 
     std::string tapeString() const;
 
-    // запрещено: Head держит ссылку на Tape этой машины
     TuringMachine(const TuringMachine&) = delete;
     TuringMachine& operator=(const TuringMachine&) = delete;
 
